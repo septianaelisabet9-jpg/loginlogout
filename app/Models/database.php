@@ -5,8 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
-class database extends Model
+class Database extends Model
 {
+    protected $table = 'users';
+
+    protected $fillable = [
+        'name',
+        'email',
+        'password'
+    ];
+
+    // Mencegah error "format() on string" saat mengolah tanggal
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
     public function pull($laundry, $kondisi)
     {
         return DB::table($laundry)->where($kondisi)->first();
@@ -16,10 +30,4 @@ class database extends Model
     {
         return DB::table($tabel)->get();
     }
-    protected $table ='users';
-    protected $fillable=[
-        'name',
-        'email',
-        'password'
-    ];
 }

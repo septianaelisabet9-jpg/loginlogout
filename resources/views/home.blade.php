@@ -6,15 +6,15 @@
     <title>Dashboard</title>
 </head>
 <body>
-    <h1>welcome to dashboard {{ session('u') }}</h1>
+    <h1>Welcome to dashboard {{ session('u') }}</h1>
 
-    <!-- Form Filter Between berdasarkan ID/Nomor -->
+    <!-- Form Filter Between berdasarkan Tanggal -->
     <form action="/home" method="GET">
-        <label for="start_id">Dari No:</label>
-        <input type="number" id="start_id" name="start_id" value="{{ request('start_id') }}" placeholder="1">
+        <label for="start_date">Dari Tanggal:</label>
+        <input type="date" id="start_date" name="start_date" value="{{ request('start_date') }}">
 
-        <label for="end_id">Sampai No:</label>
-        <input type="number" id="end_id" name="end_id" value="{{ request('end_id') }}" placeholder="5">
+        <label for="end_date">Sampai Tanggal:</label>
+        <input type="date" id="end_date" name="end_date" value="{{ request('end_date') }}">
 
         <button type="submit">Filter</button>
         <a href="/home"><button type="button">Reset</button></a>
@@ -22,9 +22,14 @@
 
     <br>
 
-    <!-- Tombol Download Excel -->
-    <a href="{{ asset('Data_User.xlsx') }}" download="Data_User.xlsx">
-        <button type="button">Print Excel</button>
+    <!-- Tombol Export Excel (Membawa Filter Tanggal) -->
+    <a href="/export-excel?start_date={{ request('start_date') }}&end_date={{ request('end_date') }}">
+        <button type="button">Export Excel</button>
+    </a>
+
+    <!-- Tombol Export PDF (Membawa Filter Tanggal & Hapus target="_blank") -->
+    <a href="/export-pdf?start_date={{ request('start_date') }}&end_date={{ request('end_date') }}">
+        <button type="button">Export PDF</button>
     </a>
 
     <!-- Tombol Window Print -->
@@ -32,29 +37,42 @@
 
     <br><br>
 
-    <table border="1" width="100">
-        <tr>
-            <th>No</th>
-            <th>Nama</th>
-            <th>Email</th>
-        </tr>
-        <?php
-            $no = 1;
-            foreach ($hai as $key => $value) {
-        ?>
-        <tr>
-            <td><?= $no++ ?></td>
-            <td><?= $value->name ?></td>
-            <td><?= $value->email ?></td>
-        </tr>
-        <?php
-            }
-        ?>
+    <table border="1" width="100%" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Nama</th>
+                <th>Email</th>
+                <th>Tanggal Buat</th>
+                <th colspan="2">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @php $no = 1; @endphp
+            @foreach ($users as $user)
+            <tr>
+                <td>{{ $no++ }}</td>
+                <td>{{ $user->name }}</td>
+                <td>{{ $user->email }}</td>
+                <td>{{ $user->created_at ? \Carbon\Carbon::parse($user->created_at)->format('Y-m-d') : '-' }}</td>
+                <td>
+                    <a href="/edit/{{ $user->id }}"><button type="button">Edit</button></a>
+                </td>               
+                <td>
+                    <form action="/delete/{{ $user->id }}" method="POST">
+                        @csrf
+                        <button type="submit">Hapus</button>
+                    </form>
+                </td>
+            </tr>
+            @endforeach
+        </tbody>
     </table>
 
     <br>
-    <button>
-        <a href="/logout">logout</a>
-    </button>
+
+    <a href="/logout">
+        <button type="button">Logout</button>
+    </a>
 </body>
 </html>
